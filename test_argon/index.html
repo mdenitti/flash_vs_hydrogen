@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinySkies Earth · Ultrarealistic 3D Globe Flight Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+
+    <!-- Floating 3D Landmark Labels Container -->
+    <div id="poi-labels-container"></div>
+
+    <!-- Top Flight Telemetry & Compass Bar -->
+    <header id="hud-top">
+      <div class="brand-badge">
+        <div class="brand-icon">✈️</div>
+        <div>
+          <div class="brand-title">TINYSKIES <span class="brand-accent">ULTRA</span></div>
+          <div class="brand-subtitle">Planetary Flight &amp; Landmark Explorer</div>
+        </div>
+      </div>
+
+      <div class="compass-wrapper">
+        <div class="compass-heading-readout">
+          HDG <span id="hud-heading">045°</span> <span id="hud-cardinal">NE</span>
+        </div>
+        <div class="compass-tape-viewport">
+          <div id="compass-tape"></div>
+          <div class="compass-center-caret">▼</div>
+        </div>
+        <div class="waypoint-bearing-bar" id="waypoint-status">
+          🎯 Target: <strong id="target-poi-name">Eiffel Tower</strong> · <span id="target-poi-dist">140 km</span>
+        </div>
+      </div>
+
+      <div class="progress-pill">
+        <div class="progress-ring-icon">🏆</div>
+        <div>
+          <div class="progress-label">CHECKPOINTS FLOWN</div>
+          <div class="progress-count"><span id="visited-count">0</span> / <span id="total-count">12</span> Landmarks</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Left Telemetry & Controls Panel -->
+    <aside id="hud-left">
+      <div class="glass-card telemetry-card">
+        <div class="card-section-title">FLIGHT TELEMETRY</div>
+        <div class="telemetry-grid">
+          <div class="telemetry-item">
+            <span class="telemetry-label">AIRSPEED</span>
+            <span class="telemetry-value"><span id="hud-speed">320</span> <small>KTS</small></span>
+            <div class="mini-bar"><div id="speed-bar-fill" class="mini-bar-fill"></div></div>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">ALTITUDE</span>
+            <span class="telemetry-value"><span id="hud-altitude">12,400</span> <small>FT</small></span>
+            <div class="mini-bar"><div id="alt-bar-fill" class="mini-bar-fill alt-fill"></div></div>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">LATITUDE</span>
+            <span class="telemetry-value mono" id="hud-lat">48.85° N</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">LONGITUDE</span>
+            <span class="telemetry-value mono" id="hud-lon">02.29° E</span>
+          </div>
+        </div>
+
+        <div class="throttle-status-row">
+          <span id="flight-mode-badge" class="status-badge manual">MANUAL PILOT</span>
+          <span id="boost-badge" class="status-badge boost hidden">🔥 AFTERBURNER</span>
+        </div>
+      </div>
+
+      <!-- World & Visual Settings -->
+      <div class="glass-card settings-card">
+        <div class="card-section-title">ENVIRONMENT &amp; SCALE</div>
+
+        <div class="control-row">
+          <div class="control-label-row">
+            <span>Solar Time (UTC)</span>
+            <span id="solar-time-label" class="mono">14:30</span>
+          </div>
+          <input type="range" id="sun-slider" min="0" max="24" step="0.05" value="14.5" />
+        </div>
+
+        <div class="control-row">
+          <div class="control-label-row">
+            <span>Landmark Scale</span>
+            <span id="scale-label" class="mono">1.8x</span>
+          </div>
+          <input type="range" id="landmark-scale-slider" min="0.8" max="3.5" step="0.1" value="1.8" />
+        </div>
+
+        <div class="button-row">
+          <button id="btn-autopilot" class="hud-btn primary-btn" title="Fly automatically to selected landmark (Key: P)">
+            🧭 Autopilot to Target
+          </button>
+          <button id="btn-teleport" class="hud-btn accent-btn" title="Instant approach to selected landmark (Key: T)">
+            ⚡ Approach Target
+          </button>
+        </div>
+
+        <div class="button-row three-col">
+          <button id="btn-camera" class="hud-btn" title="Cycle Camera View (Key: C)">
+            🎥 Cam: Chase
+          </button>
+          <button id="btn-daycycle" class="hud-btn active" title="Toggle Dynamic Sun Orbit">
+            ☀️ Cycle: On
+          </button>
+          <button id="btn-audio" class="hud-btn" title="Toggle Flight Audio">
+            🔊 Audio: Off
+          </button>
+        </div>
+      </div>
+
+      <!-- Flight Controls Cheat Sheet -->
+      <div class="glass-card controls-card">
+        <div class="card-section-title">FLIGHT CONTROLS</div>
+        <div class="key-list">
+          <div class="key-row"><kbd>W</kbd><kbd>S</kbd> or <kbd>↑</kbd><kbd>↓</kbd> <span>Pitch Down / Climb Up</span></div>
+          <div class="key-row"><kbd>A</kbd><kbd>D</kbd> or <kbd>←</kbd><kbd>→</kbd> <span>Bank &amp; Turn Left / Right</span></div>
+          <div class="key-row"><kbd>Shift</kbd> / <kbd>Ctrl</kbd> <span>Afterburner Boost / Slow</span></div>
+          <div class="key-row"><kbd>Space</kbd> <span>Fire Sky Flares / Smoke Burst</span></div>
+          <div class="key-row"><kbd>P</kbd> / <kbd>T</kbd> <span>Autopilot / Approach Target</span></div>
+          <div class="key-row"><kbd>C</kbd> / <kbd>Drag</kbd> <span>Camera Mode / Orbit Look</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Artificial Horizon Crosshair -->
+    <div id="hud-reticle">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="36" fill="none" stroke="rgba(125, 211, 252, 0.28)" stroke-width="1.5" stroke-dasharray="6 4" />
+        <line x1="20" y1="60" x2="44" y2="60" stroke="rgba(125, 211, 252, 0.65)" stroke-width="2" />
+        <line x1="76" y1="60" x2="100" y2="60" stroke="rgba(125, 211, 252, 0.65)" stroke-width="2" />
+        <line x1="60" y1="30" x2="60" y2="44" stroke="rgba(125, 211, 252, 0.65)" stroke-width="2" />
+        <circle cx="60" cy="60" r="3" fill="#38bdf8" />
+      </svg>
+    </div>
+
+    <!-- Checkpoint Discovery Notification Modal / Postcard -->
+    <div id="checkpoint-toast" class="checkpoint-toast hidden">
+      <div class="toast-badge">✨ CHECKPOINT CLEARED</div>
+      <h2 id="toast-title">Eiffel Tower</h2>
+      <div id="toast-location" class="toast-location">Paris, France · 48.86° N, 2.29° E</div>
+      <p id="toast-desc">Iconic 330-meter wrought-iron lattice tower built in 1889 on the Champ de Mars.</p>
+      <div class="toast-stats">
+        <span id="toast-xp">+500 FLIGHT XP</span>
+        <span id="toast-next-btn" class="toast-next-action">Next Waypoint ➔</span>
+      </div>
+    </div>
+
+    <!-- Right Radar Minimap & World Landmarks List -->
+    <aside id="hud-right">
+      <div class="glass-card minimap-card">
+        <div class="card-section-title">GLOBAL RADAR TRACKER</div>
+        <canvas id="radar-canvas" width="230" height="115"></canvas>
+      </div>
+
+      <div class="glass-card landmarks-card">
+        <div class="card-header-flex">
+          <span class="card-section-title">WORLD CHECKPOINTS (12)</span>
+          <span class="card-hint">Click to target</span>
+        </div>
+        <div id="landmark-list" class="landmark-list"></div>
+      </div>
+    </aside>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

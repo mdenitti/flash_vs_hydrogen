@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>GlobeFly · Three.js Earth Flight Expedition</title>
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- WebGL Canvas Container -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Top Status Bar -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <div class="logo">
+          <span class="logo-icon">✈️</span>
+          <span class="logo-title">GLOBEFLY</span>
+          <span class="logo-badge">ULTRA 3D</span>
+        </div>
+        <div class="stat-pill" title="Checkpoints Discovered">
+          <span class="pill-icon">🏆</span>
+          <span id="stat-discovered-count">0 / 14</span>
+          <span class="pill-label">Landmarks</span>
+        </div>
+      </div>
+
+      <div class="nav-center">
+        <div class="time-presets" title="Select Time of Day">
+          <button class="time-btn" data-time="dawn">🌅 Dawn</button>
+          <button class="time-btn active" data-time="noon">☀️ Noon</button>
+          <button class="time-btn" data-time="sunset">🌇 Sunset</button>
+          <button class="time-btn" data-time="night">🌌 Night</button>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <button id="btn-mouse-mode" class="ui-btn" title="Toggle Mouse Flight Steering">🖱️ Mouse Steer: OFF</button>
+        <button id="btn-camera" class="ui-btn" title="Toggle Camera View">🎥 Cam: CHASE</button>
+        <button id="btn-mute" class="ui-btn" title="Toggle Sound">🔊 Audio: On</button>
+        <button id="btn-help" class="ui-btn icon-btn" title="Flight Controls & Help">❓</button>
+      </div>
+    </header>
+
+    <!-- Main Aerospace Flight HUD -->
+    <div id="flight-hud">
+      <!-- Heading Ribbon Tape (Top) -->
+      <div class="hud-heading-box">
+        <div class="heading-arrow">▼</div>
+        <div class="heading-viewport">
+          <div id="hud-heading-tape" class="heading-tape">
+            <span>N</span><span>·</span><span>15</span><span>·</span><span>30</span><span>·</span>
+            <span>NE</span><span>·</span><span>60</span><span>·</span><span>75</span><span>·</span>
+            <span>E</span><span>·</span><span>105</span><span>·</span><span>120</span><span>·</span>
+            <span>SE</span><span>·</span><span>150</span><span>·</span><span>165</span><span>·</span>
+            <span>S</span><span>·</span><span>195</span><span>·</span><span>210</span><span>·</span>
+            <span>SW</span><span>·</span><span>240</span><span>·</span><span>255</span><span>·</span>
+            <span>W</span><span>·</span><span>285</span><span>·</span><span>300</span><span>·</span>
+            <span>NW</span><span>·</span><span>330</span><span>·</span><span>345</span><span>·</span>
+            <span>N</span><span>·</span><span>15</span><span>·</span><span>30</span><span>·</span>
+            <span>NE</span><span>·</span><span>60</span><span>·</span><span>75</span><span>·</span>
+            <span>E</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Airspeed Indicator (Left) -->
+      <div class="hud-tape-card tape-left">
+        <div class="tape-label">AIRSPEED</div>
+        <div class="tape-val-box">
+          <span id="hud-speed-val">280</span>
+          <span class="tape-unit">KTS</span>
+        </div>
+        <div class="speed-meter">
+          <div id="hud-speed-bar" class="speed-meter-fill"></div>
+        </div>
+        <div class="boost-indicator">
+          <span>THRUST</span>
+          <span class="boost-hint">[SPACE] BOOST</span>
+        </div>
+      </div>
+
+      <!-- Altimeter (Right) -->
+      <div class="hud-tape-card tape-right">
+        <div class="tape-label">ALTITUDE</div>
+        <div class="tape-val-box">
+          <span id="hud-alt-val">3,850 M</span>
+        </div>
+        <div class="alt-zone">STRATOSPHERE</div>
+      </div>
+
+      <!-- Center Artificial Horizon Reticle & Pitch Ladder -->
+      <div class="hud-center">
+        <div id="hud-pitch-ladder" class="pitch-ladder">
+          <div class="ladder-line line-up">+15°</div>
+          <div class="ladder-line line-up">+10°</div>
+          <div class="ladder-line line-up">+5°</div>
+          <div class="horizon-bar"></div>
+          <div class="ladder-line line-dn">-5°</div>
+          <div class="ladder-line line-dn">-10°</div>
+          <div class="ladder-line line-dn">-15°</div>
+        </div>
+
+        <div class="flight-reticle">
+          <div class="reticle-dot"></div>
+          <div class="reticle-wing reticle-l"></div>
+          <div class="reticle-wing reticle-r"></div>
+        </div>
+      </div>
+
+      <!-- Waypoint Target Guidance Banner -->
+      <div class="hud-waypoint-box">
+        <div id="hud-waypoint-arrow" class="waypoint-compass-arrow">▲</div>
+        <div class="waypoint-info">
+          <div class="waypoint-header">NEAREST CHECKPOINT</div>
+          <div id="hud-waypoint-tag" class="waypoint-title">🇫🇷 Eiffel Tower</div>
+          <div id="hud-waypoint-dist" class="waypoint-distance">1,420 KM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Left: Mini-Map / Globe Radar -->
+    <div class="radar-container">
+      <div class="panel-header">
+        <span class="pulse-dot"></span>
+        <span>GLOBAL RADAR</span>
+      </div>
+      <canvas id="radar-canvas" width="160" height="160"></canvas>
+      <div class="radar-legend">
+        <span class="legend-item"><span class="dot unvisited"></span> Open</span>
+        <span class="legend-item"><span class="dot visited"></span> Found</span>
+      </div>
+    </div>
+
+    <!-- Bottom Right: Fast Travel Landmark Navigator -->
+    <div class="navigator-container">
+      <div class="panel-header">
+        <span>📍 FAST TRAVEL / EXPEDITION</span>
+      </div>
+      <div class="navigator-controls">
+        <select id="landmark-select" class="landmark-dropdown"></select>
+        <button id="warp-btn" class="action-btn">FLY APPROACH</button>
+      </div>
+    </div>
+
+    <!-- Checkpoint Discovered Celebration Modal -->
+    <div id="celebration-modal" class="celebration-card hidden">
+      <div class="celebration-badge">🌟 CHECKPOINT DISCOVERED!</div>
+      <h2 id="celebration-title" class="celebration-name">Eiffel Tower</h2>
+      <div id="celebration-loc" class="celebration-location">Paris, France</div>
+      <p id="celebration-fact" class="celebration-fact">
+        It can grow by up to 15 cm in summer due to thermal expansion of the iron!
+      </p>
+      <div class="celebration-reward">+500 DISCOVERY XP · LOGGED IN EXPEDITION</div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="hud-toast" class="hud-toast hidden"></div>
+
+    <!-- Controls / Help Modal -->
+    <div id="help-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>✈️ Flight Controls & Guide</h2>
+          <button id="close-help-btn" class="close-btn">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="control-grid">
+            <div class="control-row">
+              <span class="key-combo"><kbd>W</kbd> / <kbd>S</kbd> or <kbd>↑</kbd> / <kbd>↓</kbd></span>
+              <span class="key-desc">Pitch Nose Down / Up</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo"><kbd>A</kbd> / <kbd>D</kbd> or <kbd>←</kbd> / <kbd>→</kbd></span>
+              <span class="key-desc">Roll / Bank Left & Right</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo"><kbd>Q</kbd> / <kbd>E</kbd></span>
+              <span class="key-desc">Rudder / Yaw Steering</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo"><kbd>SPACE</kbd></span>
+              <span class="key-desc">Afterburner / Speed Boost</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo"><kbd>SHIFT</kbd> / <kbd>B</kbd></span>
+              <span class="key-desc">Airbrake / Slow Down</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo"><kbd>C</kbd></span>
+              <span class="key-desc">Cycle Camera (Chase / Cockpit / Orbit)</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo"><kbd>M</kbd></span>
+              <span class="key-desc">Toggle Audio Mute</span>
+            </div>
+            <div class="control-row">
+              <span class="key-combo">🖱️ Mouse Steer</span>
+              <span class="key-desc">Click "Mouse Steer" button to steer smoothly with mouse pointer!</span>
+            </div>
+          </div>
+          <div class="guide-tip">
+            <strong>💡 Mission Goal:</strong> Fly around the 3D globe and pass through the glowing checkpoint rings hovering above iconic world landmarks (Eiffel Tower, Pyramids, Statue of Liberty, Fuji, etc.). Use the Fast Travel menu at the bottom-right to warp to any landmark on Earth!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Controls (shown on touch devices) -->
+    <div id="touch-controls" class="touch-overlay">
+      <div id="touch-stick-zone" class="touch-stick-area">
+        <div class="touch-stick-base">
+          <div id="touch-stick-knob" class="touch-stick-thumb"></div>
+        </div>
+      </div>
+      <div class="touch-actions-area">
+        <button id="touch-boost-btn" class="touch-action-btn boost">BOOST</button>
+        <button id="touch-brake-btn" class="touch-action-btn brake">BRAKE</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+

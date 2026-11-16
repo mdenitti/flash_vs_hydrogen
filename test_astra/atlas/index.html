@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080e16" />
+  <meta name="description" content="A little closer to everywhere. Fly a miniature aircraft around a beautiful planet, discover iconic landmarks, and make the world your playground." />
+  <title>Atlas — A little closer to everywhere</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+<div id="app">
+  <canvas id="world" aria-label="Interactive 3D Earth. Drag to orbit and scroll to zoom." tabindex="0"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div id="labels" aria-hidden="true"></div>
+  <header class="header">
+    <a class="brand" href="/" aria-label="Atlas home"><span class="brand-icon"><i></i><i></i><i></i><i></i></span>atlas<span class="brand-period">.</span></a>
+    <nav aria-label="Main navigation"><button id="nav-explore" class="nav-link active">Explore</button><button id="nav-log" class="nav-link">Flight log <span id="log-badge">0</span></button></nav>
+    <div class="header-actions"><div class="live-status"><span></span> ALL SYSTEMS GO</div><button id="sound" class="icon-button" aria-label="Turn ambient sound on" title="Ambient sound"><i data-lucide="volume-x"></i></button><button id="help" class="icon-button" aria-label="How to fly" title="How to fly"><i data-lucide="circle-help"></i></button><button id="fullscreen" class="icon-button" aria-label="Enter fullscreen" title="Fullscreen"><i data-lucide="maximize"></i></button></div>
+  </header>
+  <main class="experience">
+    <section class="intro"><div class="eyebrow"><span class="small-line"></span> NO PASSPORT REQUIRED</div><h1>A little closer<br>to <em>everywhere.</em></h1><p>A whole world. A tiny plane.<br>Go find your next extraordinary.</p><div class="exploration"><div class="stacked-circles"><i data-lucide="globe-2"></i><i data-lucide="navigation"></i></div><span><strong>8 wonders.</strong> One incredible planet.</span></div></section>
+    <div class="world-heading"><span class="tiny-cross">+</span><span>EARTH / SOL SYSTEM</span><span class="tiny-cross">+</span></div>
+    <aside class="destinations panel" aria-label="Destinations"><div class="panel-heading"><div><span class="eyebrow">YOUR NEXT ADVENTURE</span><h2>Somewhere incredible.</h2></div><span class="count">08</span></div><label class="search"><i data-lucide="search"></i><input id="destination-search" placeholder="Find a destination" aria-label="Find a destination"/><span>⌕</span></label><div class="destination-tabs"><button class="active" data-filter="all">All places</button><button data-filter="discovered">Discovered <span id="discovered-tab-count">0</span></button></div><div id="destination-list" class="destination-list"></div><div class="destination-footer"><span class="orange-dot"></span><span>Fly through a ring to make it yours.</span></div></aside>
+    <section class="flight-card panel"><div class="flight-card-top"><span class="eyebrow" id="flight-card-eyebrow">UP NEXT</span><span class="flight-number">AT–001 <i data-lucide="plane"></i></span></div><div class="location-line"><span class="country-flag" id="destination-flag">🇫🇷</span><div><h2 id="selected-name">Eiffel Tower</h2><p id="selected-location">Paris, France</p></div><span class="location-arrow"><i data-lucide="arrow-up-right"></i></span></div><div class="destination-facts"><span><i data-lucide="map-pin"></i><span id="selected-coordinates">48.8584° N · 2.2945° E</span></span><span id="selected-category">ARCHITECTURE</span></div><button id="fly-button" class="primary-button"><i data-lucide="plane-takeoff"></i><span id="fly-button-text">Fly to Paris</span><i data-lucide="arrow-right"></i></button><p class="flight-caption">A new perspective is just a flight away.</p></section>
+    <div class="view-controls"><button id="view-orbit" class="active" title="Explore the globe"><i data-lucide="orbit"></i>Globe view</button><button id="view-flight" title="Follow your aircraft"><i data-lucide="plane"></i>Flight view</button></div>
+    <div class="scene-controls"><div class="zoom-controls panel"><button id="zoom-in" aria-label="Zoom in"><i data-lucide="plus"></i></button><span></span><button id="zoom-out" aria-label="Zoom out"><i data-lucide="minus"></i></button></div><button id="lighting" class="icon-button panel" aria-label="Switch to night" title="Day / night"><i data-lucide="sun"></i></button><button id="reset-view" class="icon-button panel" aria-label="Reset view" title="Reset view"><i data-lucide="locate-fixed"></i></button></div>
+    <div class="orbit-hint" id="orbit-hint"><i data-lucide="mouse"></i><span>Drag to explore</span><b>·</b><span>Scroll to get closer</span></div>
+    <section class="telemetry panel"><div class="flight-status"><span class="status-light"></span><span id="flight-state">READY FOR TAKEOFF</span></div><div class="telemetry-values"><div><span>AIRSPEED</span><p><strong id="speed-value">0</strong><small>kts</small></p></div><div><span>ALTITUDE</span><p><strong id="altitude-value">12,000</strong><small>ft</small></p></div><div><span>HEADING</span><p><strong id="heading-value">045</strong><small>° NE</small></p></div></div><div class="flight-progress"><div><span>YOUR WORLD, DISCOVERED</span><strong><span id="progress-count">0</span> <span>/ 8</span></strong></div><div id="progress-segments"></div></div></section>
+  </main>
+  <footer class="footer"><div class="control-guide"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to fly</span><i></i><span><kbd>↑</kbd><kbd>↓</kbd> altitude</span><i></i><span><kbd>SHIFT</kbd> boost</span><i></i><span><kbd>SPACE</kbd> pause</span></div><span class="footer-note">A small escape. An endless horizon. <i data-lucide="sparkles"></i></span></footer>
+  <div class="mobile-flight-controls" aria-label="Touch flight controls"><button data-key="a" aria-label="Turn left">←</button><button data-key="w" aria-label="Accelerate">↑</button><button data-key="s" aria-label="Slow down">↓</button><button data-key="d" aria-label="Turn right">→</button></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="loading"><div class="loader-globe"><i data-lucide="globe-2"></i></div><span>Putting the world at your wings.</span><div class="loading-track"><i id="loading-fill"></i></div><small id="loading-label">Preparing your planet</small></div>
+  <dialog id="help-dialog"><button class="close-dialog icon-button" aria-label="Close instructions"><i data-lucide="x"></i></button><span class="eyebrow">WELCOME ABOARD</span><h2>The world is your playground.</h2><p>Choose a destination and let autopilot take you there, or take the controls and find your own way.</p><div class="help-grid"><span><kbd>W</kbd> / <kbd>S</kbd></span><p>Accelerate / slow down</p><span><kbd>A</kbd> / <kbd>D</kbd></span><p>Turn left / right</p><span><kbd>↑</kbd> / <kbd>↓</kbd></span><p>Climb / descend</p><span><kbd>SHIFT</kbd></span><p>Hold for a speed boost</p><span><kbd>SPACE</kbd></span><p>Pause or resume your flight</p><span><kbd>G</kbd> / <kbd>F</kbd></span><p>Globe view / flight view</p></div><p class="help-tip"><i data-lucide="circle-dot"></i>Fly through the glowing ring above a landmark to collect its checkpoint. Your discoveries are saved on this device.</p><button class="primary-button close-help">Let's explore <i data-lucide="arrow-right"></i></button></dialog>
+  <dialog id="log-dialog"><button class="close-dialog icon-button" aria-label="Close flight log"><i data-lucide="x"></i></button><span class="eyebrow">LITTLE FLIGHTS. BIG MEMORIES.</span><h2>Your flight log.</h2><div id="log-content"></div><button id="log-explore" class="primary-button">Keep exploring<i data-lucide="arrow-right"></i></button></dialog>
+  <div id="fatal-error" hidden><h2>Your flight needs WebGL.</h2><p>Enable hardware acceleration in your browser and reload to explore the globe.</p><button onclick="location.reload()">Try again</button></div>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
